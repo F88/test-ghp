@@ -6,6 +6,9 @@ name: Node.js Package
 on:
   release:
     types: [published]
+  push:
+    branches: [ "main" ]  # mainブランチへのプッシュでトリガー
+  workflow_dispatch:  # 手動トリガーも追加
 
 jobs:
   build:
