@@ -1,7 +1,7 @@
 {
-  "name": "test-ghp",
+  "name": "@f88/test-ghp",
   "version": "1.0.0",
-  "description": "ghp",
+  "description": "test npm.pkg.github.com",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/F88/test-ghp/issues"
   },
-  "homepage": "https://github.com/F88/test-ghp#readme"
+  "homepage": "https://github.com/F88/test-ghp#readme",
+  "publishConfig": {
+    "@f88:registry": "https://npm.pkg.github.com"
+  }
 }
