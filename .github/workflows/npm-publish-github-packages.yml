@@ -1,11 +1,11 @@
 name: Publish to GitHub Packages
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
   push:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -36,36 +36,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
-
-      - name: Get local version
-        id: get_local_version
-        run: |
-            LOCAL_VERSION=$(jq -r .version package.json)
-            echo "LOCAL_VERSION=$LOCAL_VERSION" >> $GITHUB_ENV
-
-      - name: Get published version from GitHub Packages
-        id: get_published_version
-        run: |
-          PKG_NAME=$(jq -r .name package.json)
-          PUBLISHED_VERSION=$(npm view "$PKG_NAME" version --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "none")
-          echo "PUBLISHED_VERSION=$PUBLISHED_VERSION" >> $GITHUB_ENV
-
-      - name: Compare with local package version
-        id: compare_version
-        run: |
-          if [ "$PUBLISHED_VERSION" = "none" ] || [ "$LOCAL_VERSION" != "$PUBLISHED_VERSION" ]; then
-            echo "publish=true" >> $GITHUB_OUTPUT
-          else
-            echo "publish=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: npm ci
-        run: npm ci
-      - name: Publish to GitHub Packages
-        if: steps.compare_version.outputs.publish == 'true'
-        run: npm publish
+      - run: npm ci
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Skip publish (version unchanged)
-        if: steps.compare_version.outputs.publish == 'false'
-        run: echo "Package version unchanged. Skipping publish."
