@@ -46,7 +46,7 @@ jobs:
         id: compare_version
         run: |
           LOCAL_VERSION=$(jq -r .version package.json)
-          if [ "${{ env.PUBLISHED_VERSION }}" = "none" ] || [ "$LOCAL_VERSION" != "${{ env.PUBLISHED_VERSION }}" ]; then
+          if [ "$PUBLISHED_VERSION" = "none" ] || [ "$LOCAL_VERSION" != "$PUBLISHED_VERSION" ]; then
             echo "publish=true" >> $GITHUB_OUTPUT
           else
             echo "publish=false" >> $GITHUB_OUTPUT
