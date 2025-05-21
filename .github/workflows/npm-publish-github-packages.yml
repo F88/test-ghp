@@ -36,17 +36,20 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
+
       - name: Get localx version
         id: get_local_version
         run: |
             LOCAL_VERSION=$(jq -r .version package.json)
             echo "LOCAL_VERSION=$LOCAL_VERSION" >> $GITHUB_ENV
+
       - name: Get published version from GitHub Packages
         id: get_published_version
         run: |
           PKG_NAME=$(jq -r .name package.json)
           PUBLISHED_VERSION=$(npm view "$PKG_NAME" version --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "none")
           echo "PUBLISHED_VERSION=$PUBLISHED_VERSION" >> $GITHUB_ENV
+
       - name: Compare with local package version
         id: compare_version
         run: |
@@ -55,6 +58,7 @@ jobs:
           else
             echo "publish=false" >> $GITHUB_OUTPUT
           fi
+
       - name: npm ci
         run: npm ci
       - name: Publish to GitHub Packages
