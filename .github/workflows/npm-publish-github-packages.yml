@@ -1,14 +1,11 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
 name: Publish to GitHub Packages
 
 on:
   release:
     types: [published]
   push:
-    branches: [ "main" ]  # mainブランチへのプッシュでトリガー
-  workflow_dispatch:  # 手動トリガーも追加
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -39,14 +36,28 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
-      - name: Cache npm dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - run: npm ci
-      - run: npm publish
+      - name: Get published version from GitHub Packages
+        id: get_version
+        run: |
+          PKG_NAME=$(jq -r .name package.json)
+          PUBLISHED_VERSION=$(npm view "$PKG_NAME" version --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "none")
+          echo "PUBLISHED_VERSION=$PUBLISHED_VERSION" >> $GITHUB_ENV
+      - name: Compare with local package version
+        id: compare_version
+        run: |
+          LOCAL_VERSION=$(jq -r .version package.json)
+          if [ "$PUBLISHED_VERSION" = "none" ] || [ "$LOCAL_VERSION" != "$PUBLISHED_VERSION" ]; then
+            echo "publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "publish=false" >> $GITHUB_OUTPUT
+          fi
+      - name: npm ci
+        run: npm ci
+      - name: Publish to GitHub Packages
+        if: steps.compare_version.outputs.publish == 'true'
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Skip publish (version unchanged)
+        if: steps.compare_version.outputs.publish == 'false'
+        run: echo "Package version unchanged. Skipping publish."
