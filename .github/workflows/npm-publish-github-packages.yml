@@ -39,8 +39,8 @@ jobs:
       - name: Get published version from GitHub Packages
         id: get_version
         run: |
-          PKG_NAME=$(jq -r .name package.json | sed 's|^@||')
-          PUBLISHED_VERSION=$(npm view $PKG_NAME version --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "none")
+          PKG_NAME=$(jq -r .name package.json)
+          PUBLISHED_VERSION=$(npm view "$PKG_NAME" version --registry=https://npm.pkg.github.com/ 2>/dev/null || echo "none")
           echo "PUBLISHED_VERSION=$PUBLISHED_VERSION" >> $GITHUB_ENV
       - name: Compare with local package version
         id: compare_version
