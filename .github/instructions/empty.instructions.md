@@ -1,5 +1,0 @@
----
-applyTo: "**"
----
-
-No instructions
