@@ -37,7 +37,7 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
 
-      - name: Get localx version
+      - name: Get local version
         id: get_local_version
         run: |
             LOCAL_VERSION=$(jq -r .version package.json)
